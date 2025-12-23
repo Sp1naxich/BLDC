@@ -1,0 +1,42 @@
+/*
+ * bldc.h
+ *
+ *  Created on: 2025年12月10日
+ *      Author: X
+ */
+
+#ifndef BLDC_BLDC_H_
+#define BLDC_BLDC_H_
+
+#include "user.h"
+
+#define TIM_PERIOD 8399
+
+enum BLDC_CONTROL_CMD{
+	BLDC_NONE=0,
+	BLDC_RUN,
+	BLDC_STOP=5
+};
+
+typedef struct{
+	enum BLDC_CONTROL_CMD Ctrl;
+	float duty;
+}BLDC_Control;
+
+typedef struct{
+	uint8_t step;
+}BLDC_Status;
+
+void BLDC_Run(void);
+void BLDC_Stop(void);
+void BLDC_StepChange(void);
+
+void m1_uhvl(void);
+void m1_uhwl(void);
+void m1_vhwl(void);
+void m1_vhul(void);
+void m1_whul(void);
+void m1_whvl(void);
+
+
+#endif /* BLDC_BLDC_H_ */
