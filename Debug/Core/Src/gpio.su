@@ -1,2 +1,0 @@
-../Core/Src/gpio.c:42:6:MX_GPIO_Init	48	static
-../Core/Src/gpio.c:133:4:KEY_Scan	16	static

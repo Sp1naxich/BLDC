@@ -10,7 +10,7 @@
 
 #include "user.h"
 
-#define TIM_PERIOD 8399
+#define BLDC_TIM_PWM_PERIOD 8399
 
 enum BLDC_CONTROL_CMD{
 	BLDC_NONE=0,

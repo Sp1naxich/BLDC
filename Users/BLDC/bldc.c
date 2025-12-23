@@ -10,69 +10,68 @@
 
 extern TIM_HandleTypeDef htim1;
 
-BLDC_Control bldcControl={BLDC_NONE,0.95f};
+BLDC_Control bldcControl={BLDC_NONE,0.90f};
 BLDC_Status bldcStatus={0};
 uint8_t oldStep=0;
 
 /* 上下桥臂的导通情况，共6种，也称为6步换向 */
-/* 正点原子真值表顺序==>>顺序:6,2,3,1,5,4 */
+//AB_AC_BC_BA_CA_CB
 
 void motor_UHVL(void) {
-	PIN_UH_OUT=1;
-	PIN_VH_OUT=0;
-	PIN_WH_OUT=0;
+	htim1.Instance->CCR1=(uint32_t)BLDC_TIM_PWM_PERIOD*bldcControl.duty;
+	htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
 	PIN_UL_OUT=0;
 	PIN_VL_OUT=1;
 	PIN_WL_OUT=0;
 }
 
 void motor_UHWL(void) {
-	PIN_UH_OUT=1;
-	PIN_VH_OUT=0;
-	PIN_WH_OUT=0;
+	htim1.Instance->CCR1=(uint32_t)BLDC_TIM_PWM_PERIOD*bldcControl.duty;
+	htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
 	PIN_UL_OUT=0;
 	PIN_VL_OUT=0;
 	PIN_WL_OUT=1;
 }
 
 void motor_VHWL(void) {
-	PIN_UH_OUT=0;
-	PIN_VH_OUT=1;
-	PIN_WH_OUT=0;
+	htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR2=(uint32_t)BLDC_TIM_PWM_PERIOD*bldcControl.duty;
+	htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
 	PIN_UL_OUT=0;
 	PIN_VL_OUT=0;
 	PIN_WL_OUT=1;
 }
 
 void motor_VHUL(void) {
-	PIN_UH_OUT=0;
-	PIN_VH_OUT=1;
-	PIN_WH_OUT=0;
+	htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR2=(uint32_t)BLDC_TIM_PWM_PERIOD*bldcControl.duty;
+	htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
 	PIN_UL_OUT=1;
 	PIN_VL_OUT=0;
 	PIN_WL_OUT=0;
 }
 
 void motor_WHUL(void) {
-	PIN_UH_OUT=0;
-	PIN_VH_OUT=0;
-	PIN_WH_OUT=1;
+	htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR3=(uint32_t)BLDC_TIM_PWM_PERIOD*bldcControl.duty;
 	PIN_UL_OUT=1;
 	PIN_VL_OUT=0;
 	PIN_WL_OUT=0;
 }
 
 void motor_WHVL(void) {
-	PIN_UH_OUT=0;
-	PIN_VH_OUT=0;
-	PIN_WH_OUT=1;
+	htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR3=(uint32_t)BLDC_TIM_PWM_PERIOD*bldcControl.duty;
 	PIN_UL_OUT=0;
 	PIN_VL_OUT=1;
 	PIN_WL_OUT=0;
 }
 
 
-//AB_AC_BC_BA_CA_CB
 //UV_UW_VW_VU_WU_WV
 //00_01_02_03_04_05
 void (*motorDrv[6])(void) = {motor_UHVL,motor_UHWL,motor_VHWL,motor_VHUL,motor_WHUL,motor_WHVL};
@@ -82,9 +81,9 @@ void BLDC_Run(void){
 }
 
 void BLDC_SoftDeadAera(void){
-	PIN_UH_OUT=0;
-	PIN_VH_OUT=0;
-	PIN_WH_OUT=0;
+	htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
 	PIN_UL_OUT=0;
 	PIN_VL_OUT=0;
 	PIN_WL_OUT=0;

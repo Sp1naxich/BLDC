@@ -56,6 +56,8 @@ void MX_TIM1_Init(void);
 void MX_TIM5_Init(void);
 void MX_TIM6_Init(void);
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* USER CODE BEGIN Prototypes */
 void LED_RGB_Init(void);
 void LED_RGB_Color(u8 R, u8 G, u8 B);
