@@ -134,7 +134,7 @@ int main(void)
 	RS485_Init(&huart1);
 
 	//	Motor_Init();
-
+	//Commit测试
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
