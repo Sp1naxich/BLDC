@@ -1,52 +1,76 @@
 #include "vofa.h"
+#include "rs485.h"
 
-FloatToChar fc;
 
-const uint8_t tail [4] = {0x00, 0x00, 0x80, 0x7f};	//JustFloat规定{0x00, 0x00, 0x80, 0x7f}为一组数据的结束
 uint8_t c_data[4];
-/*JustFloat*/
-//定义一个联合体，将传入的浮点型参数存入到传入的unsigned char数组里
-void float_turn_u8(float f,uint8_t * c)
+
+unsigned char DataScope_OutPut_Buffer[44] = {0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f,
+											0x00,0x00,0x80,0x7f};
+
+
+//函数说明：将单精度浮点数据转成4字节数据并存入指定地址
+//附加说明：用户无需直接操作此函数
+//target:目标单精度数据
+//buf:待写入数组
+//beg:指定从数组第几个元素开始写入
+//函数无返回
+void Float2Byte(float *target,unsigned char *buf,unsigned char beg)
 {
-	uint8_t x;
-	FloatLongType data;
-	data.fdata = f;
-	
-	for(x=0; x<4; x++)
-	{
-		c[x] = (uint8_t)(data.ldata>>(x*8));
+	unsigned char *point;
+	point = (unsigned char*)target;	  //得到float的地址
+	buf[beg]   = point[0];
+	buf[beg+1] = point[1];
+	buf[beg+2] = point[2];
+	buf[beg+3] = point[3];
+}
+
+
+//函数说明：将待发送通道的单精度浮点数据写入发送缓冲区
+//Data：通道数据
+//Channel：选择通道（1-10）
+//函数无返回
+void Formate_Channel_Data(float Data,unsigned char Channel)
+{
+	if (Channel > 9){
+		return;  //通道个数大于10或等于0，直接跳出，不执行函数
+	}
+	else{
+		switch (Channel){
+		case 0:  Float2Byte(&Data,DataScope_OutPut_Buffer,0); break;
+		case 1:  Float2Byte(&Data,DataScope_OutPut_Buffer,4); break;
+		case 2:  Float2Byte(&Data,DataScope_OutPut_Buffer,8); break;
+		case 3:  Float2Byte(&Data,DataScope_OutPut_Buffer,12); break;
+		case 4:  Float2Byte(&Data,DataScope_OutPut_Buffer,16); break;
+		case 5:  Float2Byte(&Data,DataScope_OutPut_Buffer,20); break;
+		case 6:  Float2Byte(&Data,DataScope_OutPut_Buffer,24); break;
+		case 7:  Float2Byte(&Data,DataScope_OutPut_Buffer,28); break;
+		case 8:  Float2Byte(&Data,DataScope_OutPut_Buffer,32); break;
+		case 9:  Float2Byte(&Data,DataScope_OutPut_Buffer,36); break;
+		}
 	}
 }
 
-/*
 
-*JustFloat:
-*fdata:传入数组指针
-*fdata_num:数组数据个数
-*Usart_choose:发送的串口地址
-
-前两个for将 float类型转换位四位unsigned char类型并发送出去，第三个for循环将尾部发出去
-*/
-
-void JustFloat_Send(float *fdata, uint16_t fdata_num, USART_TypeDef *Usart_choose)
+/**
+ * @arr			浮点数组
+ * @ChannelNum	通道数
+ */
+void JustFloat_Send(float *arr,uint8_t ChannelNum)
 {
-	uint16_t 	x;
-	uint8_t 	y;
-	for(x=0; x<fdata_num; x++)
-	{
-		float_turn_u8(fdata[x], c_data);
-		for(y=0; y<4; y++)
-		{
-			Usart_choose->DR = c_data[y];
-			while((Usart_choose->SR & 0X40) == 0);
-		}
+	for (uint8_t i=0;i<ChannelNum;i++){
+		Formate_Channel_Data(*(arr+i),i);
 	}
-	
-	for(y=0;y<4;y++)
-	{
-		Usart_choose->DR = tail[y];
-		while((Usart_choose->SR & 0X40) == 0);
-	}
+
+	RS485_Send(DataScope_OutPut_Buffer, 4*ChannelNum+4);
 }
 
 
@@ -55,24 +79,6 @@ void JustFloat_Send(float *fdata, uint16_t fdata_num, USART_TypeDef *Usart_choos
  */
 void VOFA_USART_PI_Adjust(uint8_t *DataBuff ,uint8_t on)
 {
-	memcpy(&fc.c_data, DataBuff, 4);															//遵循IEEE 754协议，将数据前四位赋予共用体
-
-	if(on)																												//是否开启调试
-	{
-		if(DataBuff[6] == 0x01) 																		//速度环Kp
-			pi_spd.Kp = fc.f_data;
-		else if(DataBuff[6] == 0x02) 																//电流环Iq_Kp
-			pi_iq.Kp = fc.f_data;
-		else if(DataBuff[6] == 0x03) 																//电流环Id_Kp
-			pi_iq.Kp = fc.f_data;
-		else if(DataBuff[6] == 0x04) 																//速度环Ki
-			pi_spd.Ki = fc.f_data;
-		else if(DataBuff[6] == 0x05) 																//电流环Iq_Ki
-			pi_iq.Ki = fc.f_data;
-		else if(DataBuff[6] == 0x06) 																//电流环Id_Ki
-			pi_id.Ki = fc.f_data;
-		else if(DataBuff[6] == 0x07) 																//目标速度
-			Sensorless.Speed_Max = fc.f_data;
-	}
+	;
 }
 

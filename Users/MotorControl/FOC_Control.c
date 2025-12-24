@@ -893,6 +893,6 @@ void Send_TO_PC(void)
 //	vofa_data[7] = HFI.Idf;
 //	vofa_data[8] = PLL_HFI_Para.Theta_Err;
 //	vofa_data[9] = HFI.Iqh;
-    JustFloat_Send(vofa_data, 10, USART1);
+    JustFloat_Send(vofa_data, 10);
 }
 

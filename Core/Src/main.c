@@ -134,7 +134,7 @@ int main(void)
 	RS485_Init(&huart1);
 
 	//	Motor_Init();
-	//Commit测试
+
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
@@ -153,7 +153,7 @@ int main(void)
 	//	Init_Over = 1;
 	//	SMO_flag = 1;
 
-
+	float ScopeDate[4]={0.0f};
 
 	while (1) {
 
@@ -168,23 +168,32 @@ int main(void)
 
 		check_key();
 
-		char str[60]={0},str1[10]={0},str2[10]={0},str3[10]={0},str4[10],str5[10]={0};
-		sprintf(str1,"%5.2f",ADC_Sample_Filt_Para.VBUS);
-		sprintf(str2,"%6.2f",ADC_Sample_Filt_Para.PhaseU_Curr);
-		sprintf(str3,"%6.2f",ADC_Sample_Filt_Para.PhaseV_Curr);
-		sprintf(str4,"%5ld",2000000/(htim6.Instance->ARR+1));
+//		char str[60]={0},str1[10]={0},str2[10]={0},str3[10]={0},str4[10],str5[10]={0};
+//		sprintf(str1,"%5.2f",ADC_Sample_Filt_Para.VBUS);
+//		sprintf(str2,"%6.2f",ADC_Sample_Filt_Para.PhaseU_Curr);
+//		sprintf(str3,"%6.2f",ADC_Sample_Filt_Para.PhaseV_Curr);
+//		sprintf(str4,"%5ld",2000000/(htim6.Instance->ARR+1));
+//
+//		strcat(str,"Vbus:");
+//		strcat(str,str1);
+//		strcat(str,",U:");
+//		strcat(str,str2);
+//		strcat(str,",V:");
+//		strcat(str,str3);
+//		strcat(str,",f:");
+//		strcat(str,str4);
+//		strcat(str,"Hz\n");
+//
+//		RS485_Send((uint8_t *)(&str), sizeof(str));
 
-		strcat(str,"Vbus:");
-		strcat(str,str1);
-		strcat(str,",U:");
-		strcat(str,str2);
-		strcat(str,",V:");
-		strcat(str,str3);
-		strcat(str,",f:");
-		strcat(str,str4);
-		strcat(str,"Hz\n");
 
-		RS485_Send((uint8_t *)(&str), sizeof(str));
+
+		ScopeDate[0]=ADC_Sample_Filt_Para.VBUS;
+		ScopeDate[1]=ADC_Sample_Filt_Para.PhaseU_Curr;
+		ScopeDate[2]=ADC_Sample_Filt_Para.PhaseV_Curr;
+		ScopeDate[3]=(float)(2000000/(htim6.Instance->ARR+1));
+
+		JustFloat_Send(ScopeDate, 4);
 
 		/****************************
 		 * 9V母线电压下，启动频率1500Hz，增大频率至2300Hz时达到运行峰值

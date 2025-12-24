@@ -5,8 +5,8 @@
  *      Author: X
  */
 
-#ifndef PERIPHERALS_INCLUDE_RS485_H_
-#define PERIPHERALS_INCLUDE_RS485_H_
+#ifndef __RS485_H_
+#define __RS485_H_
 
 #include <user.h>
 
