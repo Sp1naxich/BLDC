@@ -12,7 +12,7 @@
 
 extern TIM_HandleTypeDef htim1;
 
-BLDC_Control bldcControl={BLDC_NONE,0.90f};
+BLDC_Control bldcControl={BLDC_NONE,0.95f};
 BLDC_Status bldcStatus={0};
 uint8_t oldStep=0;
 

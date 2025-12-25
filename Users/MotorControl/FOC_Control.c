@@ -879,13 +879,13 @@ void Variable_Clear(void)
 //数据发送至上位机观测
 void Send_TO_PC(void)
 {
-    vofa_data[0] = Angle_SMO_Para.Ebeta;												//电角度
-    vofa_data[1] = PARK_PCurr.Qs;															//目标速度
-    vofa_data[2] = PARK_PCurr.Ds;										//实际速度
+    vofa_data[0] = Angle_SMO_Para.Ebeta;						//电角度
+    vofa_data[1] = PARK_PCurr.Qs;								//目标速度
+    vofa_data[2] = PARK_PCurr.Ds;								//实际速度
     vofa_data[3] = Sensorless.Speed_Fbk/Motor.P;				//目标d轴电流
-    vofa_data[4] = Sensorless.theta;										//d轴实际电流
-    vofa_data[5] = PLL_HFI_Para.Omega_F/PIX2*6;						//目标q轴电流
-    vofa_data[6] = PLL_HFI_Para.Theta;									//q轴实际电流
+    vofa_data[4] = Sensorless.theta;							//d轴实际电流
+    vofa_data[5] = PLL_HFI_Para.Omega_F/PIX2*6;					//目标q轴电流
+    vofa_data[6] = PLL_HFI_Para.Theta;							//q轴实际电流
     vofa_data[7] = PLL_SMO_Para.Angle;
     vofa_data[8] = PLL_SMO_Para.Omega/PIX2*6;
     vofa_data[9] = Angle_SMO_Para.Ealpha;

@@ -38,8 +38,8 @@ extern ADC_HandleTypeDef hadc1;
 #define LPF_I_STOP_A		0.00314159265f			//��ֹƵ��10Hz
 #define LPF_I_STOP_B		0.99685840735f
 
-#define LPF_I_RUN_A			0.87699f			//��ֹƵ��700Hz
-#define LPF_I_RUN_B			0.12301f
+#define LPF_I_RUN_A			0.71539f  				//一阶低通滤波，采样10kHz，截止频率2000Hz
+#define LPF_I_RUN_B			0.28461f
 	
 #define I_Gain					21.500752526338f
 

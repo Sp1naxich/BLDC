@@ -204,8 +204,8 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) {
 //ADC相电流采样、母线电压采样
 void ADC_SAMPLE(void)
 {
-	ADC_Sample_Para.PhaseU_Curr = (1.638f - (float)(ADC_Value[0])/4096*3.3f)*I_Gain;
-	ADC_Sample_Para.PhaseV_Curr = (1.638f - (float)(ADC_Value[1]) /4096*3.3f)*I_Gain;
+	ADC_Sample_Para.PhaseU_Curr = (((float)(ADC_Value[0])/4096*3.3f-1.65f)/20)/0.01;
+	ADC_Sample_Para.PhaseV_Curr = (((float)(ADC_Value[1])/4096*3.3f-1.65f)/20)/0.01;
 	ADC_Sample_Para.VBUS = (float)ADC_Value[2]/4096*3.3f/0.0909091f;
 }
 
