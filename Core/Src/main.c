@@ -82,7 +82,7 @@ void check_key(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 extern UART_HandleTypeDef huart1;
-extern ADC_Sample ADC_Sample_Filt_Para;
+extern ADC_Sample ADC_Sample_Filt;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim6;
 extern ADC_HandleTypeDef hadc1;
@@ -157,12 +157,12 @@ int main(void)
 
 	while (1) {
 
-		if (Motor.M_State == IF_Control) {
-			pi_spd.Kp = 0.007f;
-			pi_spd.Ki = 0.002f; // 0.0001*10 / 0.2   T*SpeedLoopPrescaler/0.2
-		}
+//		if (Motor.M_State == IF_Control) {
+//			pi_spd.Kp = 0.007f;
+//			pi_spd.Ki = 0.002f; // 0.0001*10 / 0.2   T*SpeedLoopPrescaler/0.2
+//		}
 
-//		HAL_Delay(50);
+//		HAL_Delay(10);
 
 		// RS485_Send((uint8_t *)("Hello World!!\n"), 14);
 
@@ -188,9 +188,9 @@ int main(void)
 
 
 
-		ScopeDate[0]=ADC_Sample_Filt_Para.VBUS;
-		ScopeDate[1]=ADC_Sample_Filt_Para.PhaseU_Curr;
-		ScopeDate[2]=ADC_Sample_Filt_Para.PhaseV_Curr;
+		ScopeDate[0]=ADC_Sample_Filt.VBUS;
+		ScopeDate[1]=ADC_Sample_Filt.PhaseU_Curr;
+		ScopeDate[2]=ADC_Sample_Filt.PhaseV_Curr;
 		ScopeDate[3]=(float)(2000000/(htim6.Instance->ARR+1));
 		ScopeDate[4]=bldcControl.duty;
 

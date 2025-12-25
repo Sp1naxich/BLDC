@@ -26,7 +26,7 @@
 #include "bldc.h"
 
 extern UART_HandleTypeDef huart1;
-extern ADC_Sample ADC_Sample_Filt_Para;
+extern ADC_Sample ADC_Sample_Filt;
 uint32_t old,new,temp=0;
 uint8_t step[6]={1,2,3,4,5,6};
 
@@ -385,7 +385,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		Get_ADC();												//获取ADC采样值
 
-		if (ADC_Sample_Filt_Para.PhaseU_Curr>1.0f || ADC_Sample_Filt_Para.PhaseV_Curr>1.0f){
+		if (ADC_Sample_Filt.PhaseU_Curr>1.0f || ADC_Sample_Filt.PhaseV_Curr>1.0f){
 			//bldcControl.Ctrl=BLDC_STOP;
 		}else {
 			;

@@ -21,8 +21,8 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
-ADC_Sample		ADC_Sample_Para = ADC_Sample_DEFAULTS;
-ADC_Sample		ADC_Sample_Filt_Para = ADC_Sample_DEFAULTS;
+ADC_Sample		ADC_Sample_Origin = ADC_Sample_DEFAULTS;
+ADC_Sample		ADC_Sample_Filt = ADC_Sample_DEFAULTS;
 
 uint16_t	ADC_Value[4];											//ADC原始采样值
 /* USER CODE END 0 */
@@ -204,17 +204,17 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) {
 //ADC相电流采样、母线电压采样
 void ADC_SAMPLE(void)
 {
-	ADC_Sample_Para.PhaseU_Curr = (((float)(ADC_Value[0])/4096*3.3f-1.65f)/20)/0.01;
-	ADC_Sample_Para.PhaseV_Curr = (((float)(ADC_Value[1])/4096*3.3f-1.65f)/20)/0.01;
-	ADC_Sample_Para.VBUS = (float)ADC_Value[2]/4096*3.3f/0.0909091f;
+	ADC_Sample_Origin.PhaseU_Curr = (((float)(ADC_Value[0])/4096*3.3f-1.65f)/20)/0.01;
+	ADC_Sample_Origin.PhaseV_Curr = (((float)(ADC_Value[1])/4096*3.3f-1.65f)/20)/0.01;
+	ADC_Sample_Origin.VBUS = (float)ADC_Value[2]/4096*3.3f/0.0909091f;
 }
 
 //ADC采样处理
 void ADC_Sample_Deal(void)
 {
-	ADC_Sample_Filt_Para.PhaseU_Curr = LPF_I_RUN_B*ADC_Sample_Filt_Para.PhaseU_Curr + LPF_I_RUN_A*ADC_Sample_Para.PhaseU_Curr;
-	ADC_Sample_Filt_Para.PhaseV_Curr = LPF_I_RUN_B*ADC_Sample_Filt_Para.PhaseV_Curr + LPF_I_RUN_A*ADC_Sample_Para.PhaseV_Curr;
-	ADC_Sample_Filt_Para.VBUS = ADC_Sample_Filt_Para.VBUS*LPF_I_STOP_B + ADC_Sample_Para.VBUS*LPF_I_STOP_A;
+	ADC_Sample_Filt.PhaseU_Curr = LPF_I_RUN_B*ADC_Sample_Filt.PhaseU_Curr + LPF_I_RUN_A*ADC_Sample_Origin.PhaseU_Curr;
+	ADC_Sample_Filt.PhaseV_Curr = LPF_I_RUN_B*ADC_Sample_Filt.PhaseV_Curr + LPF_I_RUN_A*ADC_Sample_Origin.PhaseV_Curr;
+	ADC_Sample_Filt.VBUS = ADC_Sample_Filt.VBUS*LPF_I_STOP_B + ADC_Sample_Origin.VBUS*LPF_I_STOP_A;
 }
 
 //获取ADC采样
