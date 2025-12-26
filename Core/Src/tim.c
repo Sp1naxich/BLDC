@@ -24,9 +24,11 @@
 #include "RS485.h"
 #include "stdio.h"
 #include "bldc.h"
+#include "vofa.h"
 
 extern UART_HandleTypeDef huart1;
 extern ADC_Sample ADC_Sample_Filt;
+extern BLDC_Control bldcControl;
 uint32_t old,new,temp=0;
 uint8_t step[6]={1,2,3,4,5,6};
 
@@ -41,6 +43,7 @@ u16 Speed_Clock;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 
 /* TIM1 init function */
 void MX_TIM1_Init(void)
@@ -183,7 +186,7 @@ void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 83;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 3999;
+  htim6.Init.Period = 2499;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -198,6 +201,39 @@ void MX_TIM6_Init(void)
   /* USER CODE BEGIN TIM6_Init 2 */
 
   /* USER CODE END TIM6_Init 2 */
+
+}
+/* TIM7 init function */
+void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 8399;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 99;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
 
 }
 
@@ -248,6 +284,21 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM6_MspInit 1 */
 
   /* USER CODE END TIM6_MspInit 1 */
+  }
+  else if(tim_baseHandle->Instance==TIM7)
+  {
+  /* USER CODE BEGIN TIM7_MspInit 0 */
+
+  /* USER CODE END TIM7_MspInit 0 */
+    /* TIM7 clock enable */
+    __HAL_RCC_TIM7_CLK_ENABLE();
+
+    /* TIM7 interrupt Init */
+    HAL_NVIC_SetPriority(TIM7_IRQn, 3, 2);
+    HAL_NVIC_EnableIRQ(TIM7_IRQn);
+  /* USER CODE BEGIN TIM7_MspInit 1 */
+
+  /* USER CODE END TIM7_MspInit 1 */
   }
 }
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
@@ -324,6 +375,20 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM6_MspDeInit 1 */
 
   /* USER CODE END TIM6_MspDeInit 1 */
+  }
+  else if(tim_baseHandle->Instance==TIM7)
+  {
+  /* USER CODE BEGIN TIM7_MspDeInit 0 */
+
+  /* USER CODE END TIM7_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM7_CLK_DISABLE();
+
+    /* TIM7 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(TIM7_IRQn);
+  /* USER CODE BEGIN TIM7_MspDeInit 1 */
+
+  /* USER CODE END TIM7_MspDeInit 1 */
   }
 }
 
@@ -411,6 +476,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				step_count=0;
 			}
 		}
+	}else if(htim == (&htim7)){
+		float ScopeDate[5]={0.0f};
+		ScopeDate[0]=ADC_Sample_Filt.VBUS;
+		ScopeDate[1]=ADC_Sample_Filt.PhaseU_Curr;
+		ScopeDate[2]=ADC_Sample_Filt.PhaseV_Curr;
+		ScopeDate[3]=(float)(2000000/(htim6.Instance->ARR+1));
+		ScopeDate[4]=bldcControl.duty;
+
+		JustFloat_Send(ScopeDate, 5);
 	}
 
 }

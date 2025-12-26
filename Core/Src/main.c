@@ -34,7 +34,6 @@
 #include "stm32f4xx_hal_cortex.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "sys.h"
-#include "vofa.h"
 #include "stdio.h"
 #include "bldc.h"
 
@@ -85,6 +84,7 @@ extern UART_HandleTypeDef huart1;
 extern ADC_Sample ADC_Sample_Filt;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim7;
 extern ADC_HandleTypeDef hadc1;
 extern BLDC_Control bldcControl;
 extern BLDC_Status bldcStatus;
@@ -129,6 +129,7 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM5_Init();
   MX_TIM6_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
 	RS485_Init(&huart1);
@@ -142,6 +143,7 @@ int main(void)
 
 	HAL_TIM_Base_Start_IT(&htim1);
 	HAL_TIM_Base_Start_IT(&htim6);
+	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_ADCEx_InjectedStart_IT(&hadc1);
 
   /* USER CODE END 2 */
@@ -153,7 +155,6 @@ int main(void)
 	//	Init_Over = 1;
 	//	SMO_flag = 1;
 
-	float ScopeDate[5]={0.0f};
 
 	while (1) {
 
@@ -164,37 +165,8 @@ int main(void)
 
 //		HAL_Delay(10);
 
-		// RS485_Send((uint8_t *)("Hello World!!\n"), 14);
 
 		check_key();
-
-//		char str[60]={0},str1[10]={0},str2[10]={0},str3[10]={0},str4[10],str5[10]={0};
-//		sprintf(str1,"%5.2f",ADC_Sample_Filt_Para.VBUS);
-//		sprintf(str2,"%6.2f",ADC_Sample_Filt_Para.PhaseU_Curr);
-//		sprintf(str3,"%6.2f",ADC_Sample_Filt_Para.PhaseV_Curr);
-//		sprintf(str4,"%5ld",2000000/(htim6.Instance->ARR+1));
-//
-//		strcat(str,"Vbus:");
-//		strcat(str,str1);
-//		strcat(str,",U:");
-//		strcat(str,str2);
-//		strcat(str,",V:");
-//		strcat(str,str3);
-//		strcat(str,",f:");
-//		strcat(str,str4);
-//		strcat(str,"Hz\n");
-//
-//		RS485_Send((uint8_t *)(&str), sizeof(str));
-
-		//双git测试
-
-		ScopeDate[0]=ADC_Sample_Filt.VBUS;
-		ScopeDate[1]=ADC_Sample_Filt.PhaseU_Curr;
-		ScopeDate[2]=ADC_Sample_Filt.PhaseV_Curr;
-		ScopeDate[3]=(float)(2000000/(htim6.Instance->ARR+1));
-		ScopeDate[4]=bldcControl.duty;
-
-		JustFloat_Send(ScopeDate, 5);
 
 		/****************************
 		 * 9V母线电压下，启动频率1500Hz，增大频率至2300Hz时达到运行峰值

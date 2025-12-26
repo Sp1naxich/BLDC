@@ -38,6 +38,8 @@ extern TIM_HandleTypeDef htim5;
 
 extern TIM_HandleTypeDef htim6;
 
+extern TIM_HandleTypeDef htim7;
+
 /* USER CODE BEGIN Private defines */
 #define PWMZD_Count		100							//�ٶȼ���Ƶ�ʣ�1K
 #define TIM1_Frq			20000						//��ʱ��1���ж�Ƶ��
@@ -55,6 +57,7 @@ extern	u16 Speed_Clock;
 void MX_TIM1_Init(void);
 void MX_TIM5_Init(void);
 void MX_TIM6_Init(void);
+void MX_TIM7_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
