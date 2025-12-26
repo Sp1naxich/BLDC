@@ -186,7 +186,7 @@ int main(void)
 //
 //		RS485_Send((uint8_t *)(&str), sizeof(str));
 
-
+		//双git测试
 
 		ScopeDate[0]=ADC_Sample_Filt.VBUS;
 		ScopeDate[1]=ADC_Sample_Filt.PhaseU_Curr;
