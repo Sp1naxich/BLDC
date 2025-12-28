@@ -86,6 +86,7 @@ void BLDC_SoftDeadAera(void){
 	htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
 	htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
 	htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CNT=0;
 	PIN_UL_OUT=0;
 	PIN_VL_OUT=0;
 	PIN_WL_OUT=0;
