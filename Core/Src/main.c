@@ -133,7 +133,7 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
-
+//特使分支推送测试
 	RS485_Init(&huart1);
 
 	//	Motor_Init();
