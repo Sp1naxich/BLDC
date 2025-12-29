@@ -82,14 +82,17 @@ void check_key(void);
 /* USER CODE BEGIN 0 */
 extern UART_HandleTypeDef huart1;
 extern ADC_Sample ADC_Sample_Filt;
+
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
-extern TIM_HandleTypeDef htim8;
+
 extern ADC_HandleTypeDef hadc1;
 extern BLDC_Control bldcControl;
 extern BLDC_Status bldcStatus;
+extern uint16_t	ADC_Value[4];				//ADC原始采样值
 extern void (*motorDrv[6])(void);
+
 int32_t tempARR_Tim5=0;
 uint8_t tempARR_Flag=0;
 /* USER CODE END 0 */
@@ -130,8 +133,6 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM5_Init();
   MX_TIM6_Init();
-  MX_TIM7_Init();
-  MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
 
 	RS485_Init(&huart1);
@@ -143,11 +144,8 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
 
-	HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
-
 	HAL_TIM_Base_Start_IT(&htim1);
 	HAL_TIM_Base_Start_IT(&htim6);
-	HAL_TIM_Base_Start_IT(&htim8);
 
 	HAL_ADCEx_InjectedStart_IT(&hadc1);
 
@@ -178,14 +176,15 @@ int main(void)
 		 *启动成功后，增大电压至12V，最大频率可至3300Hz
 		 *
 		 */
-		float ScopeDate[5]={0.0f};
+		float ScopeDate[6]={0.0f};
 		ScopeDate[0]=ADC_Sample_Filt.VBUS;
 		ScopeDate[1]=ADC_Sample_Filt.PhaseU_Curr;
 		ScopeDate[2]=ADC_Sample_Filt.PhaseV_Curr;
-		ScopeDate[3]=(float)(2000000/(htim6.Instance->ARR+1));
+		ScopeDate[3]=(float)(168000000.0f/(htim6.Instance->PSC+1)/(htim6.Instance->ARR+1));
 		ScopeDate[4]=bldcControl.duty;
+		ScopeDate[5]=bldcStatus.step;
 
-		JustFloat_Send(ScopeDate, 5);
+		JustFloat_Send(ScopeDate, 6);
 		//		char str[50]={0};
 		//		sprintf(str,"%d",bldcStatus.step);
 		//		strcat(str,"\n");

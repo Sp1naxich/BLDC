@@ -57,7 +57,7 @@ void MX_ADC1_Init(void)
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -80,7 +80,7 @@ void MX_ADC1_Init(void)
   sConfigInjected.InjectedNbrOfConversion = 4;
   sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_3CYCLES;
   sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONVEDGE_RISING;
-  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T8_CC4;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_CC4;
   sConfigInjected.AutoInjectedConv = DISABLE;
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
   sConfigInjected.InjectedOffset = 0;
@@ -109,7 +109,7 @@ void MX_ADC1_Init(void)
 
   /** Configures for the selected ADC injected channel its corresponding rank in the sequencer and its sample time
   */
-  sConfigInjected.InjectedChannel = ADC_CHANNEL_15;
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_TEMPSENSOR;
   sConfigInjected.InjectedRank = 4;
   if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
   {
@@ -137,14 +137,13 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**ADC1 GPIO Configuration
     PC4     ------> ADC1_IN14
-    PC5     ------> ADC1_IN15
     PB0     ------> ADC1_IN8
     PB1     ------> ADC1_IN9
     */
-    GPIO_InitStruct.Pin = PIN_VBUS_Pin|GPIO_PIN_5;
+    GPIO_InitStruct.Pin = PIN_VBUS_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(PIN_VBUS_GPIO_Port, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = PIN_IU_Pin|PIN_IV_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -152,7 +151,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* ADC1 interrupt Init */
-    HAL_NVIC_SetPriority(ADC_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(ADC_IRQn, 2, 1);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -173,11 +172,10 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
     /**ADC1 GPIO Configuration
     PC4     ------> ADC1_IN14
-    PC5     ------> ADC1_IN15
     PB0     ------> ADC1_IN8
     PB1     ------> ADC1_IN9
     */
-    HAL_GPIO_DeInit(GPIOC, PIN_VBUS_Pin|GPIO_PIN_5);
+    HAL_GPIO_DeInit(PIN_VBUS_GPIO_Port, PIN_VBUS_Pin);
 
     HAL_GPIO_DeInit(GPIOB, PIN_IU_Pin|PIN_IV_Pin);
 
@@ -193,20 +191,22 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) {
 	if (hadc==(&hadc1)) {
-		ADC_Value[0] = HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_1);
-		ADC_Value[1] = HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_2);
-		ADC_Value[2] = HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_3);
-		ADC_Value[3] = HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_4);
+		ADC_Value[0] = hadc1.Instance->JDR1;
+		ADC_Value[1] = hadc1.Instance->JDR2;
+		ADC_Value[2] = hadc1.Instance->JDR3;
+		ADC_Value[3] = hadc1.Instance->JDR4;
 		HAL_ADCEx_InjectedStart_IT(hadc);
+
+		Get_ADC();												//获取ADC采样值
 	}
 }
 
 //ADC相电流采样、母线电压采样
 void ADC_SAMPLE(void)
 {
-	ADC_Sample_Origin.PhaseU_Curr = (((float)(ADC_Value[0])/4096*3.3f-1.65f)/20)/0.01;
-	ADC_Sample_Origin.PhaseV_Curr = (((float)(ADC_Value[1])/4096*3.3f-1.65f)/20)/0.01;
-	ADC_Sample_Origin.VBUS = (float)ADC_Value[2]/4096*3.3f/0.0909091f;
+	ADC_Sample_Origin.PhaseU_Curr = (((float)(ADC_Value[0])/4095*3.3f-1.65f)/20)/0.01;
+	ADC_Sample_Origin.PhaseV_Curr = (((float)(ADC_Value[1])/4095*3.3f-1.65f)/20)/0.01;
+	ADC_Sample_Origin.VBUS = (float)ADC_Value[2]/4095*3.3f/0.0909091f;
 }
 
 //ADC采样处理
