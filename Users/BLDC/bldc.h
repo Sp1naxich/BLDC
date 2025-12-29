@@ -18,15 +18,6 @@ enum BLDC_CONTROL_CMD{
 	BLDC_STOP=5
 };
 
-enum BLDC_CHANGE_STEP{
-	BLDC_STEP_UV=1,
-	BLDC_STEP_UW,
-	BLDC_STEP_VW,
-	BLDC_STEP_VU,
-	BLDC_STEP_WU,
-	BLDC_STEP_WV
-};
-
 typedef struct{
 	enum BLDC_CONTROL_CMD Ctrl;
 	float duty;
@@ -34,8 +25,6 @@ typedef struct{
 
 typedef struct{
 	uint8_t step;
-	enum BLDC_CHANGE_STEP CurtStep;
-	enum BLDC_CHANGE_STEP NextStep;
 }BLDC_Status;
 
 void BLDC_Run(void);
