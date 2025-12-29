@@ -83,24 +83,13 @@ void BLDC_Run(void){
 }
 
 void BLDC_SoftDeadAera(void){
-	if	(bldcStatus.NextStep!=BLDC_STEP_UV && bldcStatus.NextStep!=BLDC_STEP_UW){
-		htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
-	}
-	if	(bldcStatus.NextStep!=BLDC_STEP_VW && bldcStatus.NextStep!=BLDC_STEP_VU){
-		htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
-	}
-	if	(bldcStatus.NextStep!=BLDC_STEP_WU && bldcStatus.NextStep!=BLDC_STEP_WV){
-		htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
-	}
-	if	(bldcStatus.NextStep!=BLDC_STEP_VU && bldcStatus.NextStep!=BLDC_STEP_WU){
-		PIN_UL_OUT=0;
-	}
-	if	(bldcStatus.NextStep!=BLDC_STEP_UV && bldcStatus.NextStep!=BLDC_STEP_WV){
-		PIN_VL_OUT=0;
-	}
-	if	(bldcStatus.NextStep!=BLDC_STEP_UW && bldcStatus.NextStep!=BLDC_STEP_VW){
-		PIN_WL_OUT=0;
-	}
+	htim1.Instance->CCR1=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR2=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CCR3=BLDC_TIM_PWM_PERIOD;
+	htim1.Instance->CNT=0;
+	PIN_UL_OUT=0;
+	PIN_VL_OUT=0;
+	PIN_WL_OUT=0;
 }
 
 void BLDC_StepChange(void){
@@ -111,8 +100,6 @@ void BLDC_StepChange(void){
 				BLDC_SoftDeadAera();
 				motorDrv[0]();
 				oldStep=1;
-				bldcStatus.CurtStep=BLDC_STEP_UV;
-				bldcStatus.NextStep=BLDC_STEP_UW;
 			}
 			break;
 		case 2:
@@ -120,8 +107,6 @@ void BLDC_StepChange(void){
 				BLDC_SoftDeadAera();
 				motorDrv[1]();
 				oldStep=2;
-				bldcStatus.CurtStep=BLDC_STEP_UW;
-				bldcStatus.NextStep=BLDC_STEP_VW;
 			}
 			break;
 		case 3:
@@ -129,8 +114,6 @@ void BLDC_StepChange(void){
 				BLDC_SoftDeadAera();
 				motorDrv[2]();
 				oldStep=3;
-				bldcStatus.CurtStep=BLDC_STEP_VW;
-				bldcStatus.NextStep=BLDC_STEP_VU;
 			}
 			break;
 		case 4:
@@ -138,8 +121,6 @@ void BLDC_StepChange(void){
 				BLDC_SoftDeadAera();
 				motorDrv[3]();
 				oldStep=4;
-				bldcStatus.CurtStep=BLDC_STEP_VU;
-				bldcStatus.NextStep=BLDC_STEP_WU;
 			}
 			break;
 		case 5:
@@ -147,8 +128,6 @@ void BLDC_StepChange(void){
 				BLDC_SoftDeadAera();
 				motorDrv[4]();
 				oldStep=5;
-				bldcStatus.CurtStep=BLDC_STEP_WU;
-				bldcStatus.NextStep=BLDC_STEP_WV;
 			}
 			break;
 		case 6:
@@ -156,8 +135,6 @@ void BLDC_StepChange(void){
 				BLDC_SoftDeadAera();
 				motorDrv[5]();
 				oldStep=6;
-				bldcStatus.CurtStep=BLDC_STEP_WV;
-				bldcStatus.NextStep=BLDC_STEP_UV;
 			}
 			break;
 		}
